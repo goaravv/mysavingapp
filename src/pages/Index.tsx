@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Target, Crown, TrendingUp, User, Plus, MessageCircle, Calendar, Edit3, X } from 'lucide-react';
 
 const MySavingApp = () => {
@@ -61,7 +61,20 @@ const MySavingApp = () => {
     return Math.round(totalProgress / goals.length);
   };
 
-  const sendChatMessage = async () => {
+  // Memoized handlers to prevent input focus loss
+  const handleNewGoalChange = useCallback((field, value) => {
+    setNewGoal(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleChatInputChange = useCallback((e) => {
+    setChatInput(e.target.value);
+  }, []);
+
+  const handleProfileChange = useCallback((field, value) => {
+    setProfile(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const sendChatMessage = useCallback(async () => {
     if (!chatInput.trim()) return;
     
     const userMessage = chatInput.trim();
@@ -82,7 +95,7 @@ const MySavingApp = () => {
       
       setChatMessages(prev => [...prev, { role: 'ai', content: aiResponse }]);
     }, 1000);
-  };
+  }, [chatInput, goals]);
 
   const addGoal = () => {
     if (!canCreateGoal()) {
@@ -213,8 +226,8 @@ const MySavingApp = () => {
               type="text"
               placeholder="e.g., Buy A Car, New Laptop"
               value={newGoal.name}
-              onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg"
+              onChange={(e) => handleNewGoalChange('name', e.target.value)}
+              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
           <div>
@@ -223,8 +236,8 @@ const MySavingApp = () => {
               type="number"
               placeholder="50,000"
               value={newGoal.target}
-              onChange={(e) => setNewGoal({ ...newGoal, target: e.target.value })}
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg"
+              onChange={(e) => handleNewGoalChange('target', e.target.value)}
+              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
           <div>
@@ -233,8 +246,8 @@ const MySavingApp = () => {
               type="number"
               placeholder="24"
               value={newGoal.duration}
-              onChange={(e) => setNewGoal({ ...newGoal, duration: e.target.value })}
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg"
+              onChange={(e) => handleNewGoalChange('duration', e.target.value)}
+              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
           <div>
@@ -243,16 +256,16 @@ const MySavingApp = () => {
               type="text"
               placeholder="30 Jun 2025"
               value={newGoal.endDate}
-              onChange={(e) => setNewGoal({ ...newGoal, endDate: e.target.value })}
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg"
+              onChange={(e) => handleNewGoalChange('endDate', e.target.value)}
+              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
           <div>
             <label className="text-black font-semibold block mb-2">Monthly Reminder Date*</label>
             <select
               value={newGoal.reminder}
-              onChange={(e) => setNewGoal({ ...newGoal, reminder: e.target.value })}
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg"
+              onChange={(e) => handleNewGoalChange('reminder', e.target.value)}
+              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             >
               <option>1st of every month</option>
               <option>15th of every month</option>
@@ -530,7 +543,7 @@ const MySavingApp = () => {
             type="text"
             placeholder="Ask about savings, budgeting, or planning..."
             value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
+            onChange={handleChatInputChange}
             onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
             className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
           />
@@ -616,7 +629,7 @@ const MySavingApp = () => {
             <input
               type="text"
               value={profile.name}
-              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+              onChange={(e) => handleProfileChange('name', e.target.value)}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -625,7 +638,7 @@ const MySavingApp = () => {
             <input
               type="email"
               value={profile.email}
-              onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+              onChange={(e) => handleProfileChange('email', e.target.value)}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
