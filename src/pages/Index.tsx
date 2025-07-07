@@ -852,7 +852,7 @@ const MySavingApp = () => {
 
   // Enhanced Bottom Navigation with animated pricing icon
   const BottomNav = () => (
-    <div className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700">
+    <div className="absolute bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700">
       <div className="flex">
         {Object.entries(screens).map(([key, label]) => (
           <button
@@ -882,13 +882,15 @@ const MySavingApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black flex justify-center">
-      <div className="w-full max-w-md bg-black min-h-screen pb-20 relative">
-        {currentScreen === 'goals' && <GoalsScreen />}
-        {currentScreen === 'pricing' && <PricingScreen />}
-        {currentScreen === 'analytics' && <AnalyticsScreen />}
-        {currentScreen === 'profile' && <ProfileScreen />}
-        {currentScreen === 'guide' && <GuideScreen />}
+    <div className="min-h-screen bg-white flex justify-center">
+      <div className="w-full max-w-md bg-black min-h-screen relative">
+        <div className="pb-20">
+          {currentScreen === 'goals' && <GoalsScreen />}
+          {currentScreen === 'pricing' && <PricingScreen />}
+          {currentScreen === 'analytics' && <AnalyticsScreen />}
+          {currentScreen === 'profile' && <ProfileScreen />}
+          {currentScreen === 'guide' && <GuideScreen />}
+        </div>
         
         <BottomNav />
         
