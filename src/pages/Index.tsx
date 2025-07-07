@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Target, Crown, TrendingUp, User, Plus, MessageCircle, Calendar, Edit3, X } from 'lucide-react';
 
 const MySavingApp = () => {
@@ -29,6 +29,39 @@ const MySavingApp = () => {
     endDate: '',
     reminder: '1st of every month'
   });
+
+  // Stable input handlers to prevent re-renders
+  const handleNewGoalNameChange = useCallback((e) => {
+    setNewGoal(prev => ({ ...prev, name: e.target.value }));
+  }, []);
+
+  const handleNewGoalTargetChange = useCallback((e) => {
+    setNewGoal(prev => ({ ...prev, target: e.target.value }));
+  }, []);
+
+  const handleNewGoalDurationChange = useCallback((e) => {
+    setNewGoal(prev => ({ ...prev, duration: e.target.value }));
+  }, []);
+
+  const handleNewGoalEndDateChange = useCallback((e) => {
+    setNewGoal(prev => ({ ...prev, endDate: e.target.value }));
+  }, []);
+
+  const handleNewGoalReminderChange = useCallback((e) => {
+    setNewGoal(prev => ({ ...prev, reminder: e.target.value }));
+  }, []);
+
+  const handleChatInputChange = useCallback((e) => {
+    setChatInput(e.target.value);
+  }, []);
+
+  const handleProfileNameChange = useCallback((e) => {
+    setProfile(prev => ({ ...prev, name: e.target.value }));
+  }, []);
+
+  const handleProfileEmailChange = useCallback((e) => {
+    setProfile(prev => ({ ...prev, email: e.target.value }));
+  }, []);
 
   const screens = {
     goals: 'Goal',
@@ -61,18 +94,6 @@ const MySavingApp = () => {
     return Math.round(totalProgress / goals.length);
   };
 
-  // Memoized handlers to prevent input focus loss
-  const handleNewGoalChange = useCallback((field, value) => {
-    setNewGoal(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleChatInputChange = useCallback((e) => {
-    setChatInput(e.target.value);
-  }, []);
-
-  const handleProfileChange = useCallback((field, value) => {
-    setProfile(prev => ({ ...prev, [field]: value }));
-  }, []);
 
   const sendChatMessage = useCallback(async () => {
     if (!chatInput.trim()) return;
@@ -226,7 +247,7 @@ const MySavingApp = () => {
               type="text"
               placeholder="e.g., Buy A Car, New Laptop"
               value={newGoal.name}
-              onChange={(e) => handleNewGoalChange('name', e.target.value)}
+              onChange={handleNewGoalNameChange}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
@@ -236,7 +257,7 @@ const MySavingApp = () => {
               type="number"
               placeholder="50,000"
               value={newGoal.target}
-              onChange={(e) => handleNewGoalChange('target', e.target.value)}
+              onChange={handleNewGoalTargetChange}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
@@ -246,7 +267,7 @@ const MySavingApp = () => {
               type="number"
               placeholder="24"
               value={newGoal.duration}
-              onChange={(e) => handleNewGoalChange('duration', e.target.value)}
+              onChange={handleNewGoalDurationChange}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
@@ -256,7 +277,7 @@ const MySavingApp = () => {
               type="text"
               placeholder="30 Jun 2025"
               value={newGoal.endDate}
-              onChange={(e) => handleNewGoalChange('endDate', e.target.value)}
+              onChange={handleNewGoalEndDateChange}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
           </div>
@@ -264,7 +285,7 @@ const MySavingApp = () => {
             <label className="text-black font-semibold block mb-2">Monthly Reminder Date*</label>
             <select
               value={newGoal.reminder}
-              onChange={(e) => handleNewGoalChange('reminder', e.target.value)}
+              onChange={handleNewGoalReminderChange}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             >
               <option>1st of every month</option>
@@ -629,7 +650,7 @@ const MySavingApp = () => {
             <input
               type="text"
               value={profile.name}
-              onChange={(e) => handleProfileChange('name', e.target.value)}
+              onChange={handleProfileNameChange}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -638,7 +659,7 @@ const MySavingApp = () => {
             <input
               type="email"
               value={profile.email}
-              onChange={(e) => handleProfileChange('email', e.target.value)}
+              onChange={handleProfileEmailChange}
               className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -861,19 +882,21 @@ const MySavingApp = () => {
   }
 
   return (
-    <div className="bg-black min-h-screen pb-20">
-      {currentScreen === 'goals' && <GoalsScreen />}
-      {currentScreen === 'pricing' && <PricingScreen />}
-      {currentScreen === 'analytics' && <AnalyticsScreen />}
-      {currentScreen === 'profile' && <ProfileScreen />}
-      {currentScreen === 'guide' && <GuideScreen />}
-      
-      <BottomNav />
-      
-      {showAddGoal && <AddGoalModal />}
-      {selectedGoal && <GoalDetailModal goal={selectedGoal} />}
-      {showChat && <EnhancedAIChat />}
-      {showEditProfile && <ProfileEditModal />}
+    <div className="min-h-screen bg-black flex justify-center">
+      <div className="w-full max-w-md bg-black min-h-screen pb-20 relative">
+        {currentScreen === 'goals' && <GoalsScreen />}
+        {currentScreen === 'pricing' && <PricingScreen />}
+        {currentScreen === 'analytics' && <AnalyticsScreen />}
+        {currentScreen === 'profile' && <ProfileScreen />}
+        {currentScreen === 'guide' && <GuideScreen />}
+        
+        <BottomNav />
+        
+        {showAddGoal && <AddGoalModal />}
+        {selectedGoal && <GoalDetailModal goal={selectedGoal} />}
+        {showChat && <EnhancedAIChat />}
+        {showEditProfile && <ProfileEditModal />}
+      </div>
     </div>
   );
 };
