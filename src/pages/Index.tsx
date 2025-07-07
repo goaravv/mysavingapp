@@ -317,12 +317,12 @@ const MySavingApp = () => {
   const EnhancedAIChat = React.memo(() => (
     <div className={`fixed inset-0 z-50 transition-all duration-300 ${
       isAIChatExpanded 
-        ? 'bg-black' 
-        : 'bg-black bg-opacity-50 flex items-end'
+        ? 'bg-white flex justify-center' 
+        : 'bg-black bg-opacity-50 flex items-end justify-center'
     }`}>
       <div className={`bg-gray-800 transition-all duration-300 ${
         isAIChatExpanded 
-          ? 'w-full h-full flex flex-col' 
+          ? 'w-full max-w-md h-full flex flex-col' 
           : 'w-full max-w-md mx-auto rounded-t-3xl max-h-96'
       } p-6 overflow-hidden`}>
         <div className="flex justify-between items-center mb-4">
