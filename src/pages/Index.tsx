@@ -852,7 +852,7 @@ const MySavingApp = () => {
 
   // Enhanced Bottom Navigation with animated pricing icon
   const BottomNav = () => (
-    <div className="absolute bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700">
+    <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-gray-900 border-t border-gray-700">
       <div className="flex">
         {Object.entries(screens).map(([key, label]) => (
           <button
