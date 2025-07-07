@@ -236,7 +236,8 @@ const MySavingApp = () => {
     </div>
   );
 
-  const AddGoalModal = () => (
+  // Memoized modal components to prevent re-renders during typing
+  const AddGoalModal = React.memo(() => (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-lime-400 rounded-lg p-6 w-full max-w-md">
         <h2 className="text-black text-2xl font-bold mb-4">Add New Goal</h2>
@@ -310,7 +311,132 @@ const MySavingApp = () => {
         </div>
       </div>
     </div>
-  );
+  ));
+
+  // Enhanced AI Chat Component
+  const EnhancedAIChat = React.memo(() => (
+    <div className={`fixed inset-0 z-50 transition-all duration-300 ${
+      isAIChatExpanded 
+        ? 'bg-black' 
+        : 'bg-black bg-opacity-50 flex items-end'
+    }`}>
+      <div className={`bg-gray-800 transition-all duration-300 ${
+        isAIChatExpanded 
+          ? 'w-full h-full flex flex-col' 
+          : 'w-full max-w-md mx-auto rounded-t-3xl max-h-96'
+      } p-6 overflow-hidden`}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-white text-lg font-semibold">
+            {isAIChatExpanded ? 'MySavings AI Assistant' : 'AI Chat'}
+          </h3>
+          <div className="flex space-x-2">
+            {!isAIChatExpanded && (
+              <button 
+                onClick={() => setIsAIChatExpanded(true)}
+                className="text-lime-400 hover:text-lime-500"
+                title="Expand Chat"
+              >
+                ↗️
+              </button>
+            )}
+            <button 
+              onClick={() => {
+                setShowChat(false);
+                setIsAIChatExpanded(false);
+              }} 
+              className="text-gray-400 hover:text-white"
+            >
+              <X size={24} />
+            </button>
+          </div>
+        </div>
+        
+        <div className={`flex-1 overflow-y-auto space-y-4 ${
+          isAIChatExpanded ? 'mb-4' : 'max-h-64 mb-4'
+        }`}>
+          {chatMessages.map((message, index) => (
+            <div key={index} className={`max-w-xs ${
+              message.role === 'user' ? 'ml-auto' : ''
+            }`}>
+              <div className={`rounded-lg p-3 ${
+                message.role === 'user' 
+                  ? 'bg-lime-400 text-black' 
+                  : 'bg-gray-700 text-white'
+              }`}>
+                <p className="text-sm">{message.content}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex">
+          <input
+            type="text"
+            placeholder="Ask about savings, budgeting, or planning..."
+            value={chatInput}
+            onChange={handleChatInputChange}
+            onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+            className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
+          />
+          <button 
+            onClick={sendChatMessage}
+            className="bg-lime-400 text-black px-4 py-2 rounded-r-lg hover:bg-lime-500 transition-colors"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  ));
+
+  // Profile Edit Modal
+  const ProfileEditModal = React.memo(() => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-lime-400 rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-black text-2xl font-bold mb-4">Edit Profile</h2>
+        <div className="space-y-4">
+          <div className="text-center mb-4">
+            <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-2 cursor-pointer hover:bg-gray-400 transition-colors">
+              {/* Profile picture placeholder */}
+            </div>
+            <button className="text-black text-sm underline">Change Photo</button>
+          </div>
+          <div>
+            <label className="text-black font-semibold block mb-2">Name*</label>
+            <input
+              type="text"
+              value={profile.name}
+              onChange={handleProfileNameChange}
+              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+          <div>
+            <label className="text-black font-semibold block mb-2">Email</label>
+            <input
+              type="email"
+              value={profile.email}
+              onChange={handleProfileEmailChange}
+              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            />
+          </div>
+          <div className="flex space-x-4 mt-6">
+            <button
+              onClick={() => setShowEditProfile(false)}
+              className="flex-1 bg-transparent border-2 border-black text-black font-semibold py-3 rounded-lg"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => setShowEditProfile(false)}
+              className="flex-1 bg-black text-lime-400 font-semibold py-3 rounded-lg"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ));
 
   const GoalDetailModal = ({ goal }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -503,82 +629,6 @@ const MySavingApp = () => {
     </div>
   );
 
-  // Enhanced AI Chat Component
-  const EnhancedAIChat = () => (
-    <div className={`fixed inset-0 z-50 transition-all duration-300 ${
-      isAIChatExpanded 
-        ? 'bg-black' 
-        : 'bg-black bg-opacity-50 flex items-end'
-    }`}>
-      <div className={`bg-gray-800 transition-all duration-300 ${
-        isAIChatExpanded 
-          ? 'w-full h-full flex flex-col' 
-          : 'w-full max-w-md mx-auto rounded-t-3xl max-h-96'
-      } p-6 overflow-hidden`}>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-white text-lg font-semibold">
-            {isAIChatExpanded ? 'MySavings AI Assistant' : 'AI Chat'}
-          </h3>
-          <div className="flex space-x-2">
-            {!isAIChatExpanded && (
-              <button 
-                onClick={() => setIsAIChatExpanded(true)}
-                className="text-lime-400 hover:text-lime-500"
-                title="Expand Chat"
-              >
-                ↗️
-              </button>
-            )}
-            <button 
-              onClick={() => {
-                setShowChat(false);
-                setIsAIChatExpanded(false);
-              }} 
-              className="text-gray-400 hover:text-white"
-            >
-              <X size={24} />
-            </button>
-          </div>
-        </div>
-        
-        <div className={`flex-1 overflow-y-auto space-y-4 ${
-          isAIChatExpanded ? 'mb-4' : 'max-h-64 mb-4'
-        }`}>
-          {chatMessages.map((message, index) => (
-            <div key={index} className={`max-w-xs ${
-              message.role === 'user' ? 'ml-auto' : ''
-            }`}>
-              <div className={`rounded-lg p-3 ${
-                message.role === 'user' 
-                  ? 'bg-lime-400 text-black' 
-                  : 'bg-gray-700 text-white'
-              }`}>
-                <p className="text-sm">{message.content}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex">
-          <input
-            type="text"
-            placeholder="Ask about savings, budgeting, or planning..."
-            value={chatInput}
-            onChange={handleChatInputChange}
-            onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
-            className="flex-1 bg-gray-700 text-white px-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
-          />
-          <button 
-            onClick={sendChatMessage}
-            className="bg-lime-400 text-black px-4 py-2 rounded-r-lg hover:bg-lime-500 transition-colors"
-          >
-            Send
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   // Updated Analytics Screen
   const AnalyticsScreen = () => (
     <div className="bg-black min-h-screen">
@@ -627,55 +677,6 @@ const MySavingApp = () => {
               ? `You have ${goals.length} active goal${goals.length > 1 ? 's' : ''}. Keep up the great work!`
               : 'You have 0 active goals. Start by creating your first savings goal!'
             }
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Profile Edit Modal
-  const ProfileEditModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-lime-400 rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-black text-2xl font-bold mb-4">Edit Profile</h2>
-        <div className="space-y-4">
-          <div className="text-center mb-4">
-            <div className="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-2 cursor-pointer hover:bg-gray-400 transition-colors">
-              {/* Profile picture placeholder */}
-            </div>
-            <button className="text-black text-sm underline">Change Photo</button>
-          </div>
-          <div>
-            <label className="text-black font-semibold block mb-2">Name*</label>
-            <input
-              type="text"
-              value={profile.name}
-              onChange={handleProfileNameChange}
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
-          <div>
-            <label className="text-black font-semibold block mb-2">Email</label>
-            <input
-              type="email"
-              value={profile.email}
-              onChange={handleProfileEmailChange}
-              className="w-full bg-gray-800 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
-          <div className="flex space-x-4 mt-6">
-            <button
-              onClick={() => setShowEditProfile(false)}
-              className="flex-1 bg-transparent border-2 border-black text-black font-semibold py-3 rounded-lg"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => setShowEditProfile(false)}
-              className="flex-1 bg-black text-lime-400 font-semibold py-3 rounded-lg"
-            >
-              Save Changes
-            </button>
           </div>
         </div>
       </div>
