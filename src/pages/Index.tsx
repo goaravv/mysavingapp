@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Target, Crown, TrendingUp, User, Plus, MessageCircle, Calendar, Edit3, X } from 'lucide-react';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const MySavingApp = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [currentScreen, setCurrentScreen] = useState('goals');
   const [goals, setGoals] = useState([]);
   const [showAddGoal, setShowAddGoal] = useState(false);
@@ -877,6 +879,10 @@ const MySavingApp = () => {
       </div>
     </div>
   );
+
+  if (isLoading) {
+    return <LoadingScreen onLoadingComplete={() => setIsLoading(false)} />;
+  }
 
   if (!isAuthenticated) {
     return <AuthScreen />;
