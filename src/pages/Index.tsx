@@ -235,12 +235,13 @@ const MySavingApp = () => {
     }
   };
 
-  const handleAuthFormChange = (field, value) => {
+  const handleAuthFormChange = useCallback((field, value) => {
     setAuthForm(prev => ({ ...prev, [field]: value }));
     setAuthError(''); // Clear error when user types
-  };
+  }, []);
 
-  const AuthScreen = () => (
+  // Memoized AuthScreen to prevent re-creation on each render
+  const AuthScreen = React.useMemo(() => () => (
     <div className="min-h-screen bg-white flex justify-center">
       <div className="w-full max-w-md bg-black min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-sm">
@@ -305,7 +306,7 @@ const MySavingApp = () => {
         </div>
       </div>
     </div>
-  );
+  ), [authForm, authError, isLogin, handleAuthFormChange, handleAuthSubmit]);
 
   const ChatOverlay = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
