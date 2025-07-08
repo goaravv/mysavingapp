@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Target, Crown, TrendingUp, User, Plus, MessageCircle, Calendar, Edit3, X } from 'lucide-react';
 import LoadingScreen from '@/components/LoadingScreen';
+import { supabase } from '@/integrations/supabase/client';
 
 const MySavingApp = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -10,7 +11,14 @@ const MySavingApp = () => {
   const [showAddSaving, setShowAddSaving] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authForm, setAuthForm] = useState({
+    name: '',
+    email: '',
+    password: ''
+  });
+  const [authError, setAuthError] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [chatMessages, setChatMessages] = useState([
@@ -152,6 +160,86 @@ const MySavingApp = () => {
     setShowAddSaving(false);
   };
 
+  // Authentication handlers
+  const handleAuthSubmit = async () => {
+    if (!authForm.name || !authForm.email || !authForm.password) {
+      setAuthError('All fields are required');
+      return;
+    }
+
+    setAuthError('');
+
+    try {
+      if (isLogin) {
+        // Login - check if user exists
+        const { data, error } = await supabase
+          .from('mysavingapp')
+          .select('*')
+          .eq('Email', authForm.email)
+          .eq('Password', authForm.password)
+          .single();
+
+        if (error || !data) {
+          setAuthError('Invalid email or password');
+          return;
+        }
+
+        // Update profile with user data
+        setProfile({
+          name: data.Name || 'User',
+          email: data.Email,
+          profilePicture: null
+        });
+        
+        setIsAuthenticated(true);
+      } else {
+        // Sign up - check if user already exists
+        const { data: existingUser } = await supabase
+          .from('mysavingapp')
+          .select('Email')
+          .eq('Email', authForm.email)
+          .single();
+
+        if (existingUser) {
+          setAuthError('User already exists with this email');
+          return;
+        }
+
+        // Create new user
+        const { error } = await supabase
+          .from('mysavingapp')
+          .insert([
+            {
+              Name: authForm.name,
+              Email: authForm.email,
+              Password: authForm.password
+            }
+          ]);
+
+        if (error) {
+          setAuthError('Failed to create account');
+          return;
+        }
+
+        // Update profile with user data
+        setProfile({
+          name: authForm.name,
+          email: authForm.email,
+          profilePicture: null
+        });
+
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      setAuthError('An error occurred. Please try again.');
+    }
+  };
+
+  const handleAuthFormChange = (field, value) => {
+    setAuthForm(prev => ({ ...prev, [field]: value }));
+    setAuthError(''); // Clear error when user types
+  };
+
   const AuthScreen = () => (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
@@ -163,32 +251,54 @@ const MySavingApp = () => {
           </div>
         </div>
         <div className="bg-gray-800 border-2 border-lime-400 rounded-lg p-6 space-y-4">
+          {authError && (
+            <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm">
+              {authError}
+            </div>
+          )}
+          
           <input
             type="text"
             placeholder="Name"
-            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg"
+            value={authForm.name}
+            onChange={(e) => handleAuthFormChange('name', e.target.value)}
+            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
           />
           <input
             type="email"
             placeholder="Email"
-            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg"
+            value={authForm.email}
+            onChange={(e) => handleAuthFormChange('email', e.target.value)}
+            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
           />
           <input
-            type="tel"
-            placeholder="Phone No"
-            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg"
+            type="password"
+            placeholder="Password"
+            value={authForm.password}
+            onChange={(e) => handleAuthFormChange('password', e.target.value)}
+            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
           />
+          
+          <div className="flex space-x-2 mb-4">
+            <button
+              onClick={() => setIsLogin(false)}
+              className={`flex-1 py-2 px-4 rounded-lg font-semibold ${!isLogin ? 'bg-lime-400 text-black' : 'bg-gray-600 text-white'}`}
+            >
+              Sign Up
+            </button>
+            <button
+              onClick={() => setIsLogin(true)}
+              className={`flex-1 py-2 px-4 rounded-lg font-semibold ${isLogin ? 'bg-lime-400 text-black' : 'bg-gray-600 text-white'}`}
+            >
+              Login
+            </button>
+          </div>
+          
           <button
-            onClick={() => setIsAuthenticated(true)}
+            onClick={handleAuthSubmit}
             className="w-full bg-lime-400 text-black font-semibold py-3 rounded-lg hover:bg-lime-500 transition-colors"
           >
-            Sign Up
-          </button>
-          <button
-            onClick={() => setIsAuthenticated(true)}
-            className="w-full bg-lime-400 text-black font-semibold py-3 rounded-lg hover:bg-lime-500 transition-colors"
-          >
-            Login
+            {isLogin ? 'Login' : 'Sign Up'}
           </button>
         </div>
       </div>

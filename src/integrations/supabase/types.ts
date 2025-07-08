@@ -14,7 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      mysavingapp: {
+        Row: {
+          "#": number | null
+          Email: string | null
+          Name: string | null
+          Password: string | null
+        }
+        Insert: {
+          "#"?: number | null
+          Email?: string | null
+          Name?: string | null
+          Password?: string | null
+        }
+        Update: {
+          "#"?: number | null
+          Email?: string | null
+          Name?: string | null
+          Password?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
