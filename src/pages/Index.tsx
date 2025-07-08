@@ -177,7 +177,7 @@ const MySavingApp = () => {
           .select('*')
           .eq('Email', authForm.email)
           .eq('Password', authForm.password)
-          .single();
+          .maybeSingle();
 
         if (error || !data) {
           setAuthError('Invalid email or password');
@@ -198,7 +198,7 @@ const MySavingApp = () => {
           .from('mysavingapp')
           .select('Email')
           .eq('Email', authForm.email)
-          .single();
+          .maybeSingle();
 
         if (existingUser) {
           setAuthError('User already exists with this email');
@@ -241,65 +241,67 @@ const MySavingApp = () => {
   };
 
   const AuthScreen = () => (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center">
-            <div className="w-10 h-8 bg-lime-400 rounded-sm relative">
-              <div className="absolute top-1 right-1 w-2 h-2 bg-lime-600 rounded-full"></div>
+    <div className="min-h-screen bg-white flex justify-center">
+      <div className="w-full max-w-md bg-black min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-sm">
+          <div className="flex justify-center mb-8">
+            <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-8 bg-lime-400 rounded-sm relative">
+                <div className="absolute top-1 right-1 w-2 h-2 bg-lime-600 rounded-full"></div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="bg-gray-800 border-2 border-lime-400 rounded-lg p-6 space-y-4">
-          {authError && (
-            <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm">
-              {authError}
+          <div className="bg-gray-800 border-2 border-lime-400 rounded-lg p-6 space-y-4">
+            {authError && (
+              <div className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm">
+                {authError}
+              </div>
+            )}
+            
+            <input
+              type="text"
+              placeholder="Name"
+              value={authForm.name}
+              onChange={(e) => handleAuthFormChange('name', e.target.value)}
+              className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={authForm.email}
+              onChange={(e) => handleAuthFormChange('email', e.target.value)}
+              className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={authForm.password}
+              onChange={(e) => handleAuthFormChange('password', e.target.value)}
+              className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
+            />
+            
+            <div className="flex space-x-2 mb-4">
+              <button
+                onClick={() => setIsLogin(false)}
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold ${!isLogin ? 'bg-lime-400 text-black' : 'bg-gray-600 text-white'}`}
+              >
+                Sign Up
+              </button>
+              <button
+                onClick={() => setIsLogin(true)}
+                className={`flex-1 py-2 px-4 rounded-lg font-semibold ${isLogin ? 'bg-lime-400 text-black' : 'bg-gray-600 text-white'}`}
+              >
+                Login
+              </button>
             </div>
-          )}
-          
-          <input
-            type="text"
-            placeholder="Name"
-            value={authForm.name}
-            onChange={(e) => handleAuthFormChange('name', e.target.value)}
-            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={authForm.email}
-            onChange={(e) => handleAuthFormChange('email', e.target.value)}
-            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={authForm.password}
-            onChange={(e) => handleAuthFormChange('password', e.target.value)}
-            className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
-          />
-          
-          <div className="flex space-x-2 mb-4">
+            
             <button
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-2 px-4 rounded-lg font-semibold ${!isLogin ? 'bg-lime-400 text-black' : 'bg-gray-600 text-white'}`}
+              onClick={handleAuthSubmit}
+              className="w-full bg-lime-400 text-black font-semibold py-3 rounded-lg hover:bg-lime-500 transition-colors"
             >
-              Sign Up
-            </button>
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-2 px-4 rounded-lg font-semibold ${isLogin ? 'bg-lime-400 text-black' : 'bg-gray-600 text-white'}`}
-            >
-              Login
+              {isLogin ? 'Login' : 'Sign Up'}
             </button>
           </div>
-          
-          <button
-            onClick={handleAuthSubmit}
-            className="w-full bg-lime-400 text-black font-semibold py-3 rounded-lg hover:bg-lime-500 transition-colors"
-          >
-            {isLogin ? 'Login' : 'Sign Up'}
-          </button>
         </div>
       </div>
     </div>
