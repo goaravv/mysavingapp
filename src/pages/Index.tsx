@@ -2,6 +2,9 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Target, Crown, TrendingUp, User, Plus, MessageCircle, Calendar, Edit3, X } from 'lucide-react';
 import LoadingScreen from '@/components/LoadingScreen';
 import { supabase } from '@/integrations/supabase/client';
+import { Tables } from "@/integrations/supabase/types";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 const MySavingApp = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -235,7 +238,7 @@ const MySavingApp = () => {
     }
   };
 
-  const handleAuthFormChange = useCallback((field, value) => {
+  const handleAuthFormChange = useCallback((field: string, value: string) => {
     setAuthForm(prev => ({ ...prev, [field]: value }));
     setAuthError(''); // Clear error when user types
   }, []);
@@ -259,21 +262,21 @@ const MySavingApp = () => {
               </div>
             )}
             
-            <input
+            <Input
               type="text"
               placeholder="Name"
               value={authForm.name}
               onChange={(e) => handleAuthFormChange('name', e.target.value)}
               className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
-            <input
+            <Input
               type="email"
               placeholder="Email"
               value={authForm.email}
               onChange={(e) => handleAuthFormChange('email', e.target.value)}
               className="w-full bg-gray-300 text-black placeholder-gray-600 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
             />
-            <input
+            <Input
               type="password"
               placeholder="Password"
               value={authForm.password}
@@ -306,7 +309,7 @@ const MySavingApp = () => {
         </div>
       </div>
     </div>
-  ), [authForm, authError, isLogin, handleAuthFormChange, handleAuthSubmit]);
+  ), [authForm, authError, isLogin]);
 
   const ChatOverlay = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
